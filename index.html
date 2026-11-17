@@ -1,0 +1,45 @@
+from flask import Flask, render_template, request, jsonify
+from datetime import datetime
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/api/track', methods=['POST'])
+def track_device():
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"status": "error", "message": "কোনো ডেটা পাওয়া যায়নি!"}), 400
+
+        # ইউজারের আসল আইপি ও রিকোয়েস্ট ডিটেইলস
+        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        
+        device_data = {
+            "ip_address": client_ip,
+            "device": data.get("device"),
+            "browser": data.get("browser"),
+            "screen": data.get("screen"),
+            "user_agent": data.get("userAgent"),
+            "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+
+        # পাইথন কনসোলে রিয়েল ডেটা প্রিন্ট হবে
+        print("\n--- রিয়েল ডিভাইস কানেক্ট হয়েছে ---")
+        for key, value in device_data.items():
+            print(f"{key}: {value}")
+        print------------------------------------\n")
+
+        return jsonify({
+            "status": "success",
+            "message": "সফলভাবে ডিভাইস ডেটা সার্ভারে সেভ হয়েছে!",
+            "data": device_data
+        }), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
