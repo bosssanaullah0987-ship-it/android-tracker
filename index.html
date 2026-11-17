@@ -1,45 +1,120 @@
-from flask import Flask, render_template, request, jsonify
-from datetime import datetime
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Android Device Tracker - Live</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#0b1220;
+ color:white;
+ font-family:Arial,sans-serif;
+ padding:20px;
+}
+.container{
+ max-width:440px;
+ margin:40px auto;
+ padding:24px;
+ background:#17243a;
+ border-radius:18px;
+ box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+h2{
+ text-align:center;
+ color:#36d399;
+}
+p{
+ text-align:center;
+ color:#aab8ca;
+}
+.info{
+ background:#253650;
+ padding:15px;
+ border-radius:10px;
+ margin:12px 0;
+ overflow-wrap:anywhere;
+}
+.info b {
+ color: #36d399;
+}
+button{
+ width:100%;
+ padding:15px;
+ border:0;
+ border-radius:10px;
+ background:#10b981;
+ color:white;
+ font-size:16px;
+ font-weight:bold;
+ margin-top:12px;
+ cursor: pointer;
+ transition: background 0.3s;
+}
+button:hover{background:#0e9f6e}
+#status{
+ text-align: center;
+ margin-top: 15px;
+ font-weight: bold;
+ color: #36d399;
+}
+</style>
+</head>
+<body>
 
-app = Flask(__name__)
+<div class="container">
+<h2>DEVICE TRACKER</h2>
+<p>Live device information synchronization</p>
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+<div class="info">Device: <b id="device">Detecting...</b></div>
+<div class="info">Browser: <b id="browser">Detecting...</b></div>
+<div class="info">Operating System: <b id="os">Detecting...</b></div>
+<div class="info">Screen Size: <b id="screen">Detecting...</b></div>
+<div class="info">Language: <b id="language">Detecting...</b></div>
+<div class="info">Date & Time: <b id="time">Detecting...</b></div>
 
-@app.route('/api/track', methods=['POST'])
-def track_device():
-    try:
-        data = request.json
-        if not data:
-            return jsonify({"status": "error", "message": "কোনো ডেটা পাওয়া যায়নি!"}), 400
+<button onclick="detectDeviceInf()">REFRESH DEVICE INFO</button>
 
-        # ইউজারের আসল আইপি ও রিকোয়েস্ট ডিটেইলস
-        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-        
-        device_data = {
-            "ip_address": client_ip,
-            "device": data.get("device"),
-            "browser": data.get("browser"),
-            "screen": data.get("screen"),
-            "user_agent": data.get("userAgent"),
-            "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
+<p id="status">Device information loaded successfully!</p>
+</div>
 
-        # পাইথন কনসোলে রিয়েল ডেটা প্রিন্ট হবে
-        print("\n--- রিয়েল ডিভাইস কানেক্ট হয়েছে ---")
-        for key, value in device_data.items():
-            print(f"{key}: {value}")
-        print------------------------------------\n")
+<script>
+function detectDeviceInf(){
+ const ua = navigator.userAgent;
 
-        return jsonify({
-            "status": "success",
-            "message": "সফলভাবে ডিভাইস ডেটা সার্ভারে সেভ হয়েছে!",
-            "data": device_data
-        }), 200
+ let device = "Other Device";
+ if(/Android/i.test(ua)) device = "Android Phone";
+ else if(/iPhone|iPad/i.test(ua)) device = "iPhone / iPad";
+ else if(/Windows/i.test(ua)) device = "Windows PC";
+ else if(/Mac/i.test(ua)) device = "Mac OS";
 
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+ let browser = "Other Browser";
+ if(/Edg/i.test(ua)) browser = "Microsoft Edge";
+ else if(/Chrome/i.test(ua)) browser = "Google Chrome";
+ else if(/Firefox/i.test(ua)) browser = "Firefox";
+ else if(/Safari/i.test(ua)) browser = "Safari";
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+ let os = "Other OS";
+ if(/Android/i.test(ua)) os = "Android";
+ else if(/Windows/i.test(ua)) os = "Windows";
+ else if(/Mac/i.test(ua)) os = "Mac";
+ else if(/Linux/i.test(ua)) os = "Linux";
+ else if(/iPhone|iPad/i.test(ua)) os = "iOS";
+
+ document.getElementById("device").textContent = device;
+ document.getElementById("browser").textContent = browser;
+ document.getElementById("os").textContent = os;
+ document.getElementById("screen").textContent = screen.width + " x " + screen.height;
+ document.getElementById("language").textContent = navigator.language;
+ document.getElementById("time").textContent = new Date().toLocaleString();
+}
+
+// পেজ ওপেন হওয়ার সাথে সাথেই রিয়েল ডেটা লোড হবে
+window.onload = function() {
+ detectDeviceInf();
+};
+</script>
+
+</body>
+    </html>
