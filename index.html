@@ -1,120 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Android Device Tracker - Live</title>
-<style>
-*{box-sizing:border-box}
-body{
- margin:0;
- background:#0b1220;
- color:white;
- font-family:Arial,sans-serif;
- padding:20px;
-}
-.container{
- max-width:440px;
- margin:40px auto;
- padding:24px;
- background:#17243a;
- border-radius:18px;
- box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-}
-h2{
- text-align:center;
- color:#36d399;
-}
-p{
- text-align:center;
- color:#aab8ca;
-}
-.info{
- background:#253650;
- padding:15px;
- border-radius:10px;
- margin:12px 0;
- overflow-wrap:anywhere;
-}
-.info b {
- color: #36d399;
-}
-button{
- width:100%;
- padding:15px;
- border:0;
- border-radius:10px;
- background:#10b981;
- color:white;
- font-size:16px;
- font-weight:bold;
- margin-top:12px;
- cursor: pointer;
- transition: background 0.3s;
-}
-button:hover{background:#0e9f6e}
-#status{
- text-align: center;
- margin-top: 15px;
- font-weight: bold;
- color: #36d399;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Tracker</title>
 </head>
 <body>
+    <h1>Welcome to Device Tracker</h1>
+    <p>Collecting device information...</p>
 
-<div class="container">
-<h2>DEVICE TRACKER</h2>
-<p>Live device information synchronization</p>
+    <!-- Firebase SDK (Modular CDN versions) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-<div class="info">Device: <b id="device">Detecting...</b></div>
-<div class="info">Browser: <b id="browser">Detecting...</b></div>
-<div class="info">Operating System: <b id="os">Detecting...</b></div>
-<div class="info">Screen Size: <b id="screen">Detecting...</b></div>
-<div class="info">Language: <b id="language">Detecting...</b></div>
-<div class="info">Date & Time: <b id="time">Detecting...</b></div>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyALu3lnopF7ZiB7gqmm0IW3QCerl3mReLk",
+          authDomain: "android-tracker-f428b.firebaseapp.com",
+          projectId: "android-tracker-f428b",
+          storageBucket: "android-tracker-f428b.firebasestorage.app",
+          messagingSenderId: "880746745094",
+          appId: "1:880746745094:web:44752a9aa57787c727e287",
+          measurementId: "G-V0BYXWGS55"
+        };
 
-<button onclick="detectDeviceInf()">REFRESH DEVICE INFO</button>
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-<p id="status">Device information loaded successfully!</p>
-</div>
+        // Function to collect device info and save to Firestore
+        async function trackDevice() {
+            try {
+                const deviceInfo = {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    screenWidth: window.screen.width,
+                    screenHeight: window.screen.height,
+                    language: navigator.language,
+                    timestamp: new Date().toISOString()
+                };
 
-<script>
-function detectDeviceInf(){
- const ua = navigator.userAgent;
+                // Save to Firestore collection named "devices"
+                await addDoc(collection(db, "devices"), deviceInfo);
+                console.log("Device info saved successfully!");
+            } catch (e) {
+                console.error("Error adding document: ", e);
+            }
+        }
 
- let device = "Other Device";
- if(/Android/i.test(ua)) device = "Android Phone";
- else if(/iPhone|iPad/i.test(ua)) device = "iPhone / iPad";
- else if(/Windows/i.test(ua)) device = "Windows PC";
- else if(/Mac/i.test(ua)) device = "Mac OS";
-
- let browser = "Other Browser";
- if(/Edg/i.test(ua)) browser = "Microsoft Edge";
- else if(/Chrome/i.test(ua)) browser = "Google Chrome";
- else if(/Firefox/i.test(ua)) browser = "Firefox";
- else if(/Safari/i.test(ua)) browser = "Safari";
-
- let os = "Other OS";
- if(/Android/i.test(ua)) os = "Android";
- else if(/Windows/i.test(ua)) os = "Windows";
- else if(/Mac/i.test(ua)) os = "Mac";
- else if(/Linux/i.test(ua)) os = "Linux";
- else if(/iPhone|iPad/i.test(ua)) os = "iOS";
-
- document.getElementById("device").textContent = device;
- document.getElementById("browser").textContent = browser;
- document.getElementById("os").textContent = os;
- document.getElementById("screen").textContent = screen.width + " x " + screen.height;
- document.getElementById("language").textContent = navigator.language;
- document.getElementById("time").textContent = new Date().toLocaleString();
-}
-
-// পেজ ওপেন হওয়ার সাথে সাথেই রিয়েল ডেটা লোড হবে
-window.onload = function() {
- detectDeviceInf();
-};
-</script>
-
+        // Run the function when the page loads
+        trackDevice();
+    </script>
 </body>
-    </html>
+</html>
